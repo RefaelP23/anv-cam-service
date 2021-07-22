@@ -1,11 +1,10 @@
+using FaceRec.API.Features.AddPerson;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace FaceRec.API.Features.AddPerson
+namespace FaceRec.API.Features.FindPerson
 {
     [ApiController]
     [Route("person")]
@@ -20,7 +19,8 @@ namespace FaceRec.API.Features.AddPerson
             _mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpPost]
+        [Route("find")]
         public async Task<IActionResult> FindPerson([FromBody] FindPersonCommand command)
         {
             if (!ModelState.IsValid)

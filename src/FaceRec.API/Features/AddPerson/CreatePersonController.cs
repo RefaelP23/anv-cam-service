@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace FaceRec.API.Features.AddPerson
@@ -28,7 +27,7 @@ namespace FaceRec.API.Features.AddPerson
             }
 
             var result = await _mediator.Send(command);
-            return result ? Ok(result) : Conflict(result);
+            return result != -1 ? Ok(result) : Conflict(result);
         }
     }
 }
