@@ -50,7 +50,7 @@ namespace FaceRec.API.Features.FindPerson
             foreach (var entity in entities)
             {
                 var similarityRating = Math.Abs(1 - VectorUtils.CalculateVectorCosine(request.Features, entity.Features));
-                _logger.LogInformation("The similarity rating with id: {Id} is {Similarity}", entity.Id, similarityRating);
+                _logger.LogDebug("The similarity rating with id: {Id} is {Similarity}", entity.Id, similarityRating);
                 mostSimilar.Add(similarityRating, entity.Name);
                 
             }
