@@ -19,8 +19,7 @@ namespace FaceRec.API.Features.FindPerson
             _mediator = mediator;
         }
 
-        [HttpPost]
-        [Route("find")]
+        [HttpGet]
         public async Task<IActionResult> FindPerson([FromBody] FindPersonCommand command)
         {
             if (!ModelState.IsValid)
