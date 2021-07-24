@@ -12,7 +12,16 @@ services:
     ports:
       - "5000:80"
     restart: always
-    
+  
+  client:
+    container_name: facerecapi-client
+    image: rperes23/facerecclient:latest
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    ports:
+      - "3000:80"
+    restart: always
+  
   postgres:
     container_name: postgres
     image: postgres
@@ -27,8 +36,8 @@ services:
       - "5432:5432"
     restart: unless-stopped
     
-    #adminer:
-    #image: adminer
-    #restart: always
-    #ports:
-    #  - 8080:8080
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

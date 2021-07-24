@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +15,17 @@ namespace FaceRec.Client.Features.AddPersons
     [ApiController]
     public class TestPersonsController : ControllerBase
     {
+        private readonly ILogger<TestPersonsController> _logger;
         private readonly IHttpClientFactory _clientFactory;
 
-        public TestPersonsController(IHttpClientFactory httpClientFactory)
+        public TestPersonsController(IHttpClientFactory httpClientFactory, ILogger<TestPersonsController> logger)
         {
+            _logger = logger;
             _clientFactory = httpClientFactory;
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddPersons([FromQuery] int numberOfPersons = 10, bool searchPersons = false)
+        public async Task<IActionResult> TestPersons([FromQuery] int numberOfPersons = 10, bool searchPersons = false)
         {
             try
             {
@@ -30,7 +33,7 @@ namespace FaceRec.Client.Features.AddPersons
                 {
                     numberOfPersons = 10;
                 }
-                var handler = new TestPersonsHandler();
+                var handler = new TestPersonsHandler(_logger);
 
                 var createPersonClient = _clientFactory.CreateClient("PersonsAdderClient");
                 var tasks = Enumerable.Range(0, numberOfPersons).Select(i => handler.CreateAndAddPerson(createPersonClient));
@@ -53,6 +56,7 @@ namespace FaceRec.Client.Features.AddPersons
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
@@ -60,6 +64,7 @@ namespace FaceRec.Client.Features.AddPersons
 
     public class TestPersonsHandler
     {
+        private readonly ILogger _logger;
         private readonly Uri _faceRecUri;
         private readonly Random _random = new Random();
         private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
@@ -67,9 +72,10 @@ namespace FaceRec.Client.Features.AddPersons
             PropertyNameCaseInsensitive = true
         };
 
-        public TestPersonsHandler()
+        public TestPersonsHandler(ILogger logger)
         {
-            _faceRecUri = new UriBuilder("http", "localhost", 5000, "person").Uri;
+            _faceRecUri = new UriBuilder("http", "facerecapi", 80, "person").Uri;
+            _logger = logger;
         }
 
         public double GenerateRandomNumber(double minimum, double maximum)
@@ -96,10 +102,12 @@ namespace FaceRec.Client.Features.AddPersons
             }
             catch (HttpRequestException hrex)
             {
+                _logger.LogError(hrex, hrex.Message);
                 return ("", 0, Array.Empty<double>(), hrex);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return ("", 0, Array.Empty<double>(), ex);
             }
         }
@@ -114,15 +122,16 @@ namespace FaceRec.Client.Features.AddPersons
                     RequestUri = _faceRecUri,
                     Content = JsonContent.Create(new { Features = features })
                 };
-                var response = await client.SendAsync(httpRequest);
+                using var response = await client.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();
                 using var responseStream = await response.Content.ReadAsStreamAsync();
                 var matches = await JsonSerializer.DeserializeAsync<string[]>(responseStream, _jsonSerializerOptions);
 
                 return (name, id, matches);
             } 
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return (name, id, Array.Empty<string>());
             }
         }
