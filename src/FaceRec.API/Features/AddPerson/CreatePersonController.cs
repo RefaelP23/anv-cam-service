@@ -27,7 +27,7 @@ namespace FaceRec.API.Features.AddPerson
             }
 
             var result = await _mediator.Send(command);
-            return result != -1 ? Ok(result) : Conflict(result);
+            return result != -1 ? Ok(new { Id = result }) : Conflict(new { Error = "Unable to create person" });
         }
     }
 }

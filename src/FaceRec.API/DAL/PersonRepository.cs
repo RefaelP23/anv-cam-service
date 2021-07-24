@@ -20,10 +20,10 @@ namespace FaceRec.API.DAL
 
         public async Task<int> AddAsync(Person entity)
         {
-            var sql = "Insert into persons (name,features) VALUES (@Name,@Features) RETURNING id";
+            var sql = "INSERT INTO persons (name,features) VALUES (@Name,@Features) RETURNING id";
             using var connection = CreateConnection();
             connection.Open();
-            var result = await connection.ExecuteAsync(sql, entity);
+            var result = await connection.ExecuteScalarAsync<int>(sql, entity);
             return result;
         }
 
