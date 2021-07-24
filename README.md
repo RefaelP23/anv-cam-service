@@ -14,3 +14,7 @@ The client:
 The client exposes a single API method with 2 parameters:
 1. numberOfPersons - the number of persons to add to the service. (Default: 10)
 2. searchPersons - A boolean. If true performs a search on the persons added. Otherwise, just adds the persons.
+
+The docker repos are located at:
+https://hub.docker.com/r/rperes23/facerecapi
+https://hub.docker.com/r/rperes23/facerecclient
