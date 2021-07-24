@@ -20,6 +20,7 @@ namespace FaceRec.API.Features.FindPerson
         public FindPersonValidator()
         {
             RuleFor(v => v.Features)
+                .NotEmpty()
                 .Custom((arr, ctx) =>
                 {
                     if (arr.Length != 256)
@@ -47,12 +48,13 @@ namespace FaceRec.API.Features.FindPerson
             var mostSimilar = new SimilarPersonsCollection();
 
             var entities = await _repository.GetAllAsync();
-            foreach (var entity in entities)
-            {
-                var similarityRating = Math.Abs(1 - VectorUtils.CalculateVectorCosine(request.Features, entity.Features));
-                _logger.LogDebug("The similarity rating with id: {Id} is {Similarity}", entity.Id, similarityRating);
-                mostSimilar.Add(similarityRating, entity.Name);
-            }
+            Parallel.ForEach(entities, entity =>
+                {
+                    var similarityRating = Math.Abs(1 - VectorUtils.CalculateVectorCosine(request.Features, entity.Features));
+                    _logger.LogDebug("The similarity rating with id: {Id} is {Similarity}", entity.Id, similarityRating);
+                    mostSimilar.Add(similarityRating, entity.Name);
+                }
+            );
 
             return mostSimilar.GetValues();
         }

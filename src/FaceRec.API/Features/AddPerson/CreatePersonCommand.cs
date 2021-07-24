@@ -19,7 +19,9 @@ namespace FaceRec.API.Features.AddPerson
     {
         public CreatePersonCommandValidator()
         {
+            RuleFor(v => v.Name).NotEmpty();
             RuleFor(v => v.Features)
+                .NotEmpty()
                 .Custom((arr, ctx) =>
                 {
                     if (arr.Length != 256)

@@ -1,36 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace FaceRec.API.Features.FindPerson
 {
     public class SimilarPersonsCollection
     {
         private const int MAX_PERSONS = 3;
+        private readonly object locked = new();
 
         private readonly List<KeyValuePair<double, string>> _similarPersons = new List<KeyValuePair<double, string>>();
 
         public void Add(double similarity, string name)
         {
-            if (_similarPersons.Count == 0)
+            lock(locked)
             {
-                _similarPersons.Add(new KeyValuePair<double, string>(similarity, name));
-                return;
-            }
-            
-            if (_similarPersons.Count == 1 || _similarPersons.Count == 2)
-            {
-                _similarPersons.Add(new KeyValuePair<double, string>(similarity, name));
-                _similarPersons.Sort(CompareKey);
-                return;
-            }
-
-            for (var i = 0; i < MAX_PERSONS; i++)
-            {
-                if (similarity < _similarPersons[i].Key)
+                if (_similarPersons.Count == 0)
                 {
-                    _similarPersons.Insert(i, new KeyValuePair<double, string>(similarity, name));
-                    _similarPersons.RemoveAt(MAX_PERSONS);
-                    break;
+                    _similarPersons.Add(new KeyValuePair<double, string>(similarity, name));
+                    return;
+                }
+            
+                if (_similarPersons.Count == 1 || _similarPersons.Count == 2)
+                {
+                    _similarPersons.Add(new KeyValuePair<double, string>(similarity, name));
+                    _similarPersons.Sort(CompareKey);
+                    return;
+                }
+
+                for (var i = 0; i < MAX_PERSONS; i++)
+                {
+                    if (similarity < _similarPersons[i].Key)
+                    {
+                        _similarPersons.Insert(i, new KeyValuePair<double, string>(similarity, name));
+                        _similarPersons.RemoveAt(MAX_PERSONS);
+                        break;
+                    }
                 }
             }
         }
