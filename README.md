@@ -8,6 +8,7 @@
 5. The server also has a *Swagger UI* at: http://localhost:5000/swagger/index.html
 
   **Note: The FindPerson API is a GET, but uses a body to pass the features. Swagger doesn't support GET with body so test can be done in Postman.
+  
 6. An *adminer* is also available to access the DB at: http://localhost:8080/.
 
   Connection details are in the docker-compose postgres section.
@@ -20,4 +21,5 @@ The client exposes a single API method with 2 parameters:
 
 ## The docker repos are located at:
 https://hub.docker.com/r/rperes23/facerecapi
+
 https://hub.docker.com/r/rperes23/facerecclient
